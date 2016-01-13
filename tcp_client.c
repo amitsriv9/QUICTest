@@ -9,7 +9,7 @@
 #include <stdio.h>
 
  #define SERVER_PORT 12888
-   int main(){
+   int main(int argc, char *argv[]){
 
 
     struct sockaddr_in  client;
@@ -21,14 +21,20 @@
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
     struct timeval tv;
 
-
+     /*check for input parameters if missing warn and exit*/
+    if(argc < 3){
+     fprintf(stderr, "Need an ip address and a port number\n");  
+     fprintf(stderr, "Format ./u_tcp_client <ip> <port>\n");
+     return 0;  
+     }
+     
     /*support*/
     int connect_status, fdesc, recvdbytes, totalrecvd=0, totalsent, wrote;
     char filename[] = "clientfile";
 
     client.sin_family=AF_INET;
-    client.sin_port=htons(SERVER_PORT);
-    client.sin_addr.s_addr = inet_addr("192.168.81.128");
+    client.sin_port=htons(atoi(argv[2]));
+    client.sin_addr.s_addr = inet_addr(argv[1]);
 
     client_size = sizeof(client);
     connect_status = connect(client_socket, (struct sockaddr*)&client, client_size);
@@ -62,21 +68,6 @@
                  close(fdesc);
                  close(client_socket);
 	         break;
-	      /*
-	       strncpy(message_buffer, data_buffer,recvdbytes);
-	       printf("%s\n", message_buffer);
-	       if(!strncmp(message_buffer,"ENDOFFILE",9)){
-	         printf("Found the file end msg\n");
-                 close(fdesc);
-                 close(client_socket);
-	         break;
-	       }
-	       else{
-                 wrote = write(fdesc, data_buffer, recvdbytes);
-    	         totalrecvd += recvdbytes;
-	         printf("Wrote %d bytes to the file\n",recvdbytes);
-	       } 
-	      */
 	     }
     }
     printf("File transfer complete %d\n", totalrecvd);
